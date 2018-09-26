@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket</title>
+</head>
+<body>
+	
+	<p>服务器状态: <label id="server-status">未知</label><label id="server-error"></label></p>
+	<div>
+		<label>标题：</label><input type="text" id="title"> <input type="button" value="搜索" onclick="search()">
+	</div>
+	<br>
+	<div style="clear: both;">
+		<button onclick="showType(1)">360</button>
+		<button onclick="showType(2)">百度</button>
+		<button onclick="showType(3)">应用宝</button>
+		<button onclick="showType(4)">豌豆荚</button>
+		<button onclick="showType(5)">华为</button>
+		<button onclick="showType(6)">魅族</button>
+		<button onclick="showType(7)">VIVO</button>
+		<button onclick="showType(8)">OPPO</button>
+	</div>
+	<br>
+	<div style="width:48%;height:350px;float: right;">
+		<label>服务器消息：</label>
+		<br>
+		<br>
+		<textarea id="rspMsg" style="width: 100%;height: 100%;" readonly="readonly"></textarea>
+	</div>
+	<div style="width:48%;height:350px;">
+		<label>服务器结果：</label>
+		<br>
+		<br>
+		<textarea id="rspData" style="width: 100%;height: 100%;" readonly="readonly"></textarea>
+	</div>
+</body>
+<script type="text/javascript">
+var serverStatus = document.getElementById("server-status");
+var serverError = document.getElementById("server-error");
+
+var title = document.getElementById("title");
+var rspData = document.getElementById("rspData");
+var rspMsg = document.getElementById("rspMsg");
+
+var list1 = null;
+
+var list2 = null;
+
+var list3 = null;
+
+var list4 = null;
+
+var list5 = null;
+
+var list6 = null;
+
+var list7 = null;
+
+var list8 = null;
+</script>
+<script type="text/javascript">
+var ws = null;
+
+function connect() {
+	ws = new WebSocket("ws://localhost:8008/data");
+	
+	ws.onopen = function() {  
+		serverStatus.innerText="成功";
+		serverStatus.style.color = "#008000";
+		console.log("open");
+	};
+
+	ws.onmessage = function(evt) {
+	   var json = eval("("+evt.data+")");
+	   console.log(json);
+	   if(json.type == 1) {
+		   rspMsg.innerHTML = json.msg + "\n" + rspMsg.innerHTML;
+	   } else if(json.type == 2) {
+		   switch(json.subType) {
+		   	case 1:
+		   		list1 = json.data;
+			   	   break;
+			case 2:
+				list2 = json.data;
+				   break;
+			case 3:
+				list3 = json.data;
+				   break;
+			case 4:
+				list4 = json.data;
+				   break;
+			case 5:
+				list5 = json.data;
+				   break;
+			case 6:
+				list6 = json.data;
+				   break;
+			case 7:
+				list7 = json.data;
+				   break;
+			case 8:
+				list8 = json.data;
+				   break;
+		   }
+	   }
+	};
+
+	ws.onclose = function(evt) {
+	  	serverStatus.innerText="关闭";
+	  	serverStatus.style.color = "#FFFF00";
+	  	console.log("WebSocketClosed!");
+	};
+
+	ws.onerror = function(evt) {
+	  	serverStatus.innerText="错误";
+	  	serverStatus.style.color = "#FF0000";
+	  	console.log("WebSocketError!");
+	};
+}
+
+connect();
+
+function search() {
+	if(ws == null || ws == undefined) {
+		return ;
+	}
+	var t = title.value;
+	var req = '{type:1,title:"'+t+'"}';
+	ws.send(req);
+}
+
+function showType(type) {
+	var list = null;
+	switch(type) {
+	case 1:
+		list = list1;
+		break;
+	case 2:
+		list = list2;
+		break;
+	case 3:
+		list = list3;
+		break;
+	case 4:
+		list = list4;
+		break;
+	case 5:
+		list = list5;
+		break;
+	case 6:
+		list = list6;
+		break;
+	case 7:
+		list = list7;
+		break;
+	case 8:
+		list = list8;
+		break;
+	}
+	if(list == null) {
+		rspData.innerHTML = "没有数据！！！";
+	} else {
+		rspData.innerHTML = "";
+		for(var i=0;i<list.length;i++) {
+			   rspData.innerHTML += list[i].appName + "，下载量：" + list[i].average;
+			   rspData.innerHTML += "\n";
+		   }
+	}
+	   
+}
+</script>
+</html>
