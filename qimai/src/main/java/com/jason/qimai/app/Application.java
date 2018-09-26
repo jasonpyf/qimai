@@ -18,11 +18,11 @@ public class Application implements Listener{
 
 	@Override
 	public void onSuccess(Object... args) {
-		
+		System.out.println("服务启动成功...");
 	}
 
 	@Override
 	public void onFailure(Throwable cause) {
-		
+		System.out.println("服务启动失败..." + cause.getMessage());
 	}
 }
